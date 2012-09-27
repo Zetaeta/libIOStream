@@ -28,7 +28,7 @@ public:
     void seek(size_t offset, int whence);
     void close();
 private:
-    FILE *file;
+    int fd_;
     bool closed;
 };
 

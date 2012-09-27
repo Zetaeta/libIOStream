@@ -3,6 +3,7 @@
 #define DEFLATEOUTPUTSTREAM_HPP
 
 #include <string>
+#include <zlib.h>
 
 #include "OutputStream.hpp"
 #include "Buffer.hpp"

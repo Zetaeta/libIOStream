@@ -1,20 +1,24 @@
 
 #include <stdio.h>
+#include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "PlainInputStream.hpp"
 
-namespace IOStream {
-
 using std::string;
+using std::cout;
+
+namespace IOStream {
 
 PlainInputStream::PlainInputStream(const string &fileName, Endian endian)
 :InputStream(endian), closed(false) {
-    file = fopen(fileName.c_str(), "rb");
+    fd_ = open(fileName.c_str(), O_RDONLY);
+    cout << "PlainInputStream(): fd = " << fd_ << '\n';
 }
 
 PlainInputStream::PlainInputStream(int fd, Endian endian)
-:InputStream(endian), closed(false) {
-    file = fdopen(fd, "rb");
+:InputStream(endian), closed(false), fd_(fd) {
 }
 
 PlainInputStream::~PlainInputStream() {
@@ -24,34 +28,34 @@ PlainInputStream::~PlainInputStream() {
 }
 
 ssize_t PlainInputStream::read(void *bytes, size_t size) {
-    size_t result = fread(bytes, 1, size, file);
-    if (ferror(file)) {
-        return -1;
-    }
+    size_t result = ::read(fd_, bytes, size);
+//    if (ferror(file)) {
+//        return -1;
+//    }
     return result;
 }
 
 ssize_t PlainInputStream::peek(void *bytes, size_t size) {
-    size_t pos = ftell(file);
-    size_t result = fread(bytes, 1, size, file);
-    fseek(file, pos, SEEK_SET);
-    if (ferror(file)) {
-        return -1;
-    }
+    size_t pos = lseek(fd_, 0, SEEK_CUR);
+    ssize_t result = ::read(fd_, bytes, size);
+    lseek(fd_, pos, SEEK_SET);
+//    if (ferror(file)) {
+//        return -1;
+//    }
     return result;
 }
 
 void PlainInputStream::seek(size_t offset, int whence) {
-    fseek(file, offset, whence);
+    lseek(fd_, offset, whence);
 }
 
 int PlainInputStream::fd() {
-    return fileno(file);
+    return fd_;
 }
 
 void PlainInputStream::close() {
     closed = true;
-    fclose(file);
+    ::close(fd_);
 }
 
 }

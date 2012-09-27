@@ -3,6 +3,7 @@
 #define DEFLATEINPUTSTREAM_HPP
 
 #include <string>
+#include <zlib.h>
 
 #include "InputStream.hpp"
 #include "Buffer.hpp"
@@ -24,6 +25,7 @@ public:
     ssize_t read(void *bytes, size_t size);
     ssize_t peek(void *bytes, size_t size);
     void seek(size_t offset, int whence);
+    void putBack();
     void close();
 private:
     void init();

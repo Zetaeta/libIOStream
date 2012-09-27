@@ -14,12 +14,12 @@ using std::ostringstream;
 namespace IOStream {
 
 Buffer::Buffer(int length)
-:startPos(0), endPos(1) {
+:startPos(0), endPos(0), fullSize(length) {
     buf = new uint8_t[length];
 }
 
 uint8_t Buffer::take() {
-    if (endPos - startPos < 1) {
+    if ((endPos - startPos) < 1) {
         throw underflow_error("Buffer is empty!");
     }
     return buf[startPos++];
