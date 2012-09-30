@@ -12,7 +12,6 @@
 #endif
 
 using std::string;
-using std::cout;
 using std::cerr;
 
 namespace IOStream {
@@ -20,13 +19,11 @@ namespace IOStream {
 DeflateInputStream::DeflateInputStream(const string &fileName, Endian endian)
 :InputStream(endian), closed(false), buffer(DEFLATE_INPUT_STREAM_BUFFER_LENGTH) {
     fd_ = open(fileName.c_str(), O_RDONLY);
-    cout << "DeflateInputStream(): fd = " << fd_ << '\n';
     init();
 }
 
 DeflateInputStream::DeflateInputStream(int fd, Endian endian)
 :InputStream(endian), closed(false), fd_(fd), buffer(DEFLATE_INPUT_STREAM_BUFFER_LENGTH) {
-    cout << "DeflateInputStream(): fd = " << fd_ << '\n';
     init();
 }
 
@@ -49,7 +46,6 @@ void DeflateInputStream::init() {
     zstream.data_type = Z_BINARY;
     int ret = inflateInit(&zstream);
     if (ret == Z_OK) {
-        cout << "init(): Z_OK\n";
     }
     else if (ret == Z_STREAM_ERROR) {
         cerr << "init(): Z_STREAM_ERROR\n";
@@ -65,22 +61,14 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         populateBuffer();
         first = false;
     }
-    cout << "DeflateInputStream::read(): reading " << size << " bytes.\n";
-    cout << "buffer.available(): " << buffer.available() << '\n';
     zstream.next_in = buffer.begin();
     zstream.avail_in = buffer.available();
     zstream.next_out = static_cast<uint8_t *>(bytes);
     zstream.avail_out = size;
     int returned;
     int inBefore = zstream.avail_in;
-    cout << "About to read, buffer.available() = " << buffer.available() << '\n';
-    cout << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
-    cout << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
     while ((zstream.avail_out != 0)) { // While there is space in `bytes` and no buffer error.
         returned = inflate(&zstream, Z_SYNC_FLUSH);
-        cout << "inBefore: " << inBefore << '\n';
-        cout << "zstream.avail_in: " << zstream.avail_in << '\n';
-        cout << "zstream.avail_out: " << zstream.avail_out << '\n';
         buffer.take(inBefore - zstream.avail_in);
         populateBuffer();
         zstream.avail_in = buffer.available();
@@ -95,18 +83,10 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
         cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
     }
-    cout << "Read bytes: ( ";
-    for (size_t i=0; i<size; ++i) {
-        cout << uint16_t(static_cast<uint8_t *>(bytes)[i]) << " ";
-    }
-    cout << ")\n";
 }
 
 void DeflateInputStream::populateBuffer() {
-    cout << "DeflateInputStream::populateBuffer(): Before reading. buffer.available() = " << buffer.available() << '\n';
-    cout << "    buffer.spaceAfter() = " << buffer.spaceAfter() << '\n';
     if (buffer.spaceBefore() > buffer.spaceAfter()) {
-        cout << "Shifting to start!\n";
         buffer.shiftToStart();
         zstream.next_in = buffer.begin();
     }
@@ -116,9 +96,7 @@ void DeflateInputStream::populateBuffer() {
         cerr << "Error reading: " << strerror(errno) << '\n';
         return;
     }
-    cout << "    Read " << bytesRead << " bytes.\n";
     buffer.add(size_t(bytesRead));
-    cout << "    After reading. buffer.available() = " << buffer.available() << '\n';
     zstream.avail_in = buffer.available();
 }
 

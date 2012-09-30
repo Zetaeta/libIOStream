@@ -16,7 +16,6 @@ public:
     void take(uint8_t *output, size_t len);
     size_t request(uint8_t *output, size_t len);
     uint8_t * take(size_t len);
-    void add(uint8_t);
     void add(uint8_t *bytes, size_t len);
     size_t offer(uint8_t *bytes, size_t len);
     void add(size_t len);
@@ -30,11 +29,13 @@ public:
     size_t spaceBefore();
     size_t totalSpace();
     void shiftToStart();
+    size_t fullSize();
+    uint8_t operator[](size_t);
     
 private:
     size_t startPos;
     size_t endPos;
-    size_t fullSize;
+    size_t fullSize_;
     uint8_t *buf;
 };
 

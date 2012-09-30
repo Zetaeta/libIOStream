@@ -14,7 +14,7 @@ using std::ostringstream;
 namespace IOStream {
 
 Buffer::Buffer(int length)
-:startPos(0), endPos(0), fullSize(length) {
+:startPos(0), endPos(0), fullSize_(length) {
     buf = new uint8_t[length];
 }
 
@@ -52,17 +52,10 @@ uint8_t * Buffer::take(size_t len) {
     return cur;
 }
 
-void Buffer::add(uint8_t byte) {
-    if ((fullSize - endPos) < 1) {
-        throw overflow_error("Cannot add byte: buffer is full.");
-    }
-    buf[endPos++] = byte;
-}
-
 void Buffer::add(uint8_t *bytes, size_t len) {
-    if ((fullSize  - endPos) < len) {
+    if ((fullSize_  - endPos) < len) {
         ostringstream ss;
-        ss << "Cannot add bytes: space available: " << (fullSize - endPos) << ", " << len << " required.";
+        ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
         throw overflow_error(ss.str());
     }
     memcpy(&buf[endPos], bytes, len);
@@ -70,16 +63,16 @@ void Buffer::add(uint8_t *bytes, size_t len) {
 }
 
 size_t Buffer::offer(uint8_t *bytes, size_t len) {
-    size_t taken = min(len, fullSize - endPos);
+    size_t taken = min(len, fullSize_ - endPos);
     memcpy(&buf[endPos], bytes, taken);
     endPos += taken;
     return taken;
 }
 
 void Buffer::add(size_t len) {
-    if ((fullSize - endPos) < len) {
+    if ((fullSize_ - endPos) < len) {
         ostringstream ss;
-        ss << "Cannot add bytes: space available: " << (fullSize - endPos) << ", " << len << " required.";
+        ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
         throw overflow_error(ss.str());
     }
     endPos += len;
@@ -98,7 +91,7 @@ Buffer::iterator Buffer::trueBegin() {
 }
 
 Buffer::iterator Buffer::trueEnd() {
-    return &buf[fullSize];
+    return &buf[fullSize_];
 }
 
 size_t Buffer::availableBytes() {
@@ -110,7 +103,7 @@ size_t Buffer::available() {
 }
 
 size_t Buffer::spaceAfter() {
-    return fullSize - endPos;
+    return fullSize_ - endPos;
 }
 
 size_t Buffer::spaceBefore() {
@@ -118,7 +111,7 @@ size_t Buffer::spaceBefore() {
 }
 
 size_t Buffer::totalSpace() {
-    return fullSize - (endPos - startPos);
+    return fullSize_ - (endPos - startPos);
 }
 
 void Buffer::shiftToStart() {
@@ -132,6 +125,14 @@ void Buffer::shiftToStart() {
     memmove(buf, &buf[startPos], endPos - startPos);
     endPos -= startPos;
     startPos = 0;
+}
+
+size_t Buffer::fullSize() {
+    return fullSize_;
+}
+
+uint8_t Buffer::operator[](size_t index) {
+    return buf[startPos + index];
 }
 
 }
