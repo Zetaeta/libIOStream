@@ -13,6 +13,10 @@ enum Endian {
     NATIVE
 };
 
+#ifndef DEFAULT_ENDIAN
+#define DEFAULT_ENDIAN BIG
+#endif
+
 }
 
 #endif

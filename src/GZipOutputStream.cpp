@@ -8,22 +8,17 @@ namespace IOStream {
 
 using std::string;
 
-GZipOutputStream::GZipOutputStream(const string &fileName, Endian endian)
-:OutputStream(endian), closed(false) {
+GZipOutputStream::GZipOutputStream(const string &fileName) {
     fd_ = open(fileName.c_str(), O_WRONLY);
     file = gzdopen(fd_, "wb");
 }
 
-GZipOutputStream::GZipOutputStream(int fd, Endian endian)
-:OutputStream(endian), closed(false), fd_(fd) {
+GZipOutputStream::GZipOutputStream(int fd)
+:fd_(fd) {
     file = gzdopen(fd, "wb");
 }
 
-GZipOutputStream::~GZipOutputStream() {
-    if (!closed) {
-        close();
-    }
-}
+GZipOutputStream::~GZipOutputStream() {}
 
 ssize_t GZipOutputStream::write(const void *bytes, size_t size) {
     int result = gzwrite(file, bytes, size);
@@ -44,7 +39,6 @@ int GZipOutputStream::fd() {
 }
 
 void GZipOutputStream::close() {
-    closed = true;
     gzclose(file);
 }
 

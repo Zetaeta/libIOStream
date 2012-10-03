@@ -6,7 +6,7 @@
 
 #include <sys/types.h>
 
-#include "OutputStream.hpp"
+#include "RawOutputStream.hpp"
 #include "Endian.hpp"
 
 #ifndef ZLIB_H
@@ -15,10 +15,10 @@ typedef struct gzFile_s *gzFile;
 
 namespace IOStream {
 
-class PlainOutputStream : public OutputStream {
+class PlainOutputStream : public RawOutputStream {
 public:
-    PlainOutputStream(const std::string &, Endian = NATIVE);
-    PlainOutputStream(int fd, Endian = NATIVE);
+    PlainOutputStream(const std::string &);
+    PlainOutputStream(int fd);
     ~PlainOutputStream();
 
     int fd();
@@ -28,7 +28,6 @@ public:
     void close();
 private:
     FILE *file;
-    bool closed;
 };
 
 }

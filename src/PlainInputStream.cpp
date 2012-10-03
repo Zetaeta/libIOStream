@@ -11,21 +11,16 @@ using std::cout;
 
 namespace IOStream {
 
-PlainInputStream::PlainInputStream(const string &fileName, Endian endian)
-:InputStream(endian), closed(false) {
+PlainInputStream::PlainInputStream(const string &fileName) {
     fd_ = open(fileName.c_str(), O_RDONLY);
     cout << "PlainInputStream(): fd = " << fd_ << '\n';
 }
 
-PlainInputStream::PlainInputStream(int fd, Endian endian)
-:InputStream(endian), closed(false), fd_(fd) {
+PlainInputStream::PlainInputStream(int fd)
+:fd_(fd) {
 }
 
-PlainInputStream::~PlainInputStream() {
-    if (!closed) {
-        close();
-    }
-}
+PlainInputStream::~PlainInputStream() {}
 
 ssize_t PlainInputStream::read(void *bytes, size_t size) {
     size_t result = ::read(fd_, bytes, size);
@@ -54,7 +49,6 @@ int PlainInputStream::fd() {
 }
 
 void PlainInputStream::close() {
-    closed = true;
     ::close(fd_);
 }
 

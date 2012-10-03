@@ -5,8 +5,9 @@
 #include <string>
 #include <zlib.h>
 
-#include "InputStream.hpp"
+#include "RawInputStream.hpp"
 #include "Buffer.hpp"
+#include "MaybePointer.hpp"
 
 #ifndef ZLIB_H
 typedef struct gzFile_s *gzFile;
@@ -14,10 +15,9 @@ typedef struct gzFile_s *gzFile;
 
 namespace IOStream {
 
-class DeflateInputStream : public InputStream {
+class DeflateInputStream : public RawInputStream {
 public:
-    DeflateInputStream(const std::string &, Endian = NATIVE);
-    DeflateInputStream(int fd, Endian = NATIVE);
+    DeflateInputStream(MaybePointer<RawInputStream> raw);
     ~DeflateInputStream();
 
     int fd();
@@ -33,8 +33,7 @@ private:
 
     z_stream zstream;
     Buffer buffer;
-    int fd_;
-    bool closed;
+    MaybePointer<RawInputStream> raw;
 };
 
 }

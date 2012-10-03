@@ -13,22 +13,10 @@ namespace IOStream {
 
 using std::string;
 
-DeflateOutputStream::DeflateOutputStream(const string &fileName, Endian endian)
-:OutputStream(endian), closed(false), buffer(DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH) {
-    fd_ = open(fileName.c_str(), O_RDONLY);
-    init();
-}
+DeflateOutputStream::DeflateOutputStream(MaybePointer<RawOutputStream> raw)
+:buffer(DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH), raw(raw) {}
 
-DeflateOutputStream::DeflateOutputStream(int fd, Endian endian)
-:OutputStream(endian), closed(false), fd_(fd), buffer(DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH) {
-    init();
-}
-
-DeflateOutputStream::~DeflateOutputStream() {
-    if (!closed) {
-        close();
-    }
-}
+DeflateOutputStream::~DeflateOutputStream() {}
 
 void DeflateOutputStream::init() {
     zstream.zalloc = NULL;
@@ -56,26 +44,23 @@ ssize_t DeflateOutputStream::write(const void *bytes, size_t size) {
         writeBuffer();
         zstream.next_out = buffer.end();
     }
+    return size;
 }
 
 void DeflateOutputStream::writeBuffer() {
-    size_t bytesWritten = ::write(fd_, buffer.begin(), buffer.available());
+    size_t bytesWritten = raw->write(buffer.begin(), buffer.available());
     buffer.take(bytesWritten);
     zstream.avail_out = buffer.spaceAfter();
     buffer.shiftToStart();
 }
 
 void DeflateOutputStream::seek(size_t offset, int whence) {
-    lseek(fd_, offset, whence);
-}
-
-int DeflateOutputStream::fd() {
-    return fd_;
+    raw->seek(offset, whence);
 }
 
 void DeflateOutputStream::close() {
-    closed = true;
-    ::close(fd_);
+    deflateEnd(&zstream);
+    raw->close();
 }
 
 }

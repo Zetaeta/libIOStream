@@ -16,22 +16,10 @@ using std::cerr;
 
 namespace IOStream {
 
-DeflateInputStream::DeflateInputStream(const string &fileName, Endian endian)
-:InputStream(endian), closed(false), buffer(DEFLATE_INPUT_STREAM_BUFFER_LENGTH) {
-    fd_ = open(fileName.c_str(), O_RDONLY);
-    init();
-}
+DeflateInputStream::DeflateInputStream(MaybePointer<RawInputStream> raw)
+:buffer(DEFLATE_INPUT_STREAM_BUFFER_LENGTH), raw(raw) {}
 
-DeflateInputStream::DeflateInputStream(int fd, Endian endian)
-:InputStream(endian), closed(false), fd_(fd), buffer(DEFLATE_INPUT_STREAM_BUFFER_LENGTH) {
-    init();
-}
-
-DeflateInputStream::~DeflateInputStream() {
-    if (!closed) {
-        close();
-    }
-}
+DeflateInputStream::~DeflateInputStream() {}
 
 void DeflateInputStream::init() {
     zstream.zalloc = NULL;
@@ -65,7 +53,7 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
     zstream.avail_in = buffer.available();
     zstream.next_out = static_cast<uint8_t *>(bytes);
     zstream.avail_out = size;
-    int returned;
+    int returned = 0;
     int inBefore = zstream.avail_in;
     while ((zstream.avail_out != 0)) { // While there is space in `bytes` and no buffer error.
         returned = inflate(&zstream, Z_SYNC_FLUSH);
@@ -83,6 +71,7 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
         cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
     }
+    return size;
 }
 
 void DeflateInputStream::populateBuffer() {
@@ -91,7 +80,7 @@ void DeflateInputStream::populateBuffer() {
         zstream.next_in = buffer.begin();
     }
     errno = 0;
-    ssize_t bytesRead = ::read(fd_, buffer.end(), buffer.spaceAfter());
+    ssize_t bytesRead = raw->read(buffer.end(), buffer.spaceAfter());
     if (bytesRead < 0) {
         cerr << "Error reading: " << strerror(errno) << '\n';
         return;
@@ -105,23 +94,18 @@ ssize_t DeflateInputStream::peek(void *, size_t) {
 }
 
 void DeflateInputStream::seek(size_t offset, int whence) {
-    lseek(fd_, offset, whence);
-}
-
-int DeflateInputStream::fd() {
-    return fd_;
+    raw->seek(offset, whence);
 }
 
 // "Put back" what is left in the buffer into the file.
 void DeflateInputStream::putBack() {
-    lseek(fd_, buffer.available(), SEEK_CUR);
+    raw->seek(buffer.available(), SEEK_CUR);
 }
 
 void DeflateInputStream::close() {
-    closed = true;
-    ::close(fd_);
     inflateEnd(&zstream);
     putBack();
+    raw->close();
 }
 
 }

@@ -8,12 +8,15 @@
 #include <sys/types.h>
 
 #include "Endian.hpp"
+#include "MaybePointer.hpp"
 
 namespace IOStream {
 
+class RawOutputStream;
+
 class OutputStream {
 public:
-    OutputStream(Endian = NATIVE);
+    OutputStream(MaybePointer<RawOutputStream>, Endian = DEFAULT_ENDIAN);
     OutputStream & operator<<(int8_t);
     OutputStream & operator<<(uint8_t);
     OutputStream & operator<<(int16_t);
@@ -25,14 +28,13 @@ public:
     OutputStream & operator<<(float);
     OutputStream & operator<<(double);
     OutputStream & operator<<(const std::string &);
-    virtual ~OutputStream() = 0;
+    virtual ~OutputStream();
 
-    virtual int fd() = 0;
-
-    virtual ssize_t write(const void *bytes, size_t size) = 0;
-    virtual void seek(size_t offset, int whence) = 0;
-    virtual void close() = 0;
+    ssize_t write(const void *bytes, size_t size);
+    void seek(size_t offset, int whence);
+    void close();
 private:
+    MaybePointer<RawOutputStream> raw;
     bool swap;
 };
 

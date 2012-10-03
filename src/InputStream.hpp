@@ -8,13 +8,15 @@
 #include <sys/types.h>
 
 #include "Endian.hpp"
+#include "MaybePointer.hpp"
 
 namespace IOStream {
 
+class RawInputStream;
+
 class InputStream {
 public:
-    InputStream(Endian = NATIVE);
-//    InputStream(Endian = NATIVE);
+    InputStream(MaybePointer<RawInputStream>, Endian = DEFAULT_ENDIAN);
     InputStream & operator>>(int8_t &);
     InputStream & operator>>(uint8_t &);
     InputStream & operator>>(int16_t &);
@@ -50,15 +52,15 @@ public:
     InputStream & peek(float &);
     InputStream & peek(double &);
     InputStream & peek(std::string &);
-    virtual ~InputStream() = 0;
+    virtual ~InputStream();
 
-    virtual int fd() = 0;
+    ssize_t read(void *, size_t);
+    ssize_t peek(void *, size_t);
+    void seek(size_t offset, int whence);
+    void close();
 
-    virtual ssize_t read(void *, size_t length) = 0;
-    virtual ssize_t peek(void *, size_t length) = 0;
-    virtual void seek(size_t offset, int whence) = 0;
-    virtual void close() = 0;
 private:
+    MaybePointer<RawInputStream> raw;
     bool swap;
 };
 

@@ -7,21 +7,15 @@ namespace IOStream {
 
 using std::string;
 
-PlainOutputStream::PlainOutputStream(const string &fileName, Endian endian)
-:OutputStream(endian), closed(false) {
+PlainOutputStream::PlainOutputStream(const string &fileName) {
     file = fopen(fileName.c_str(), "wb");
 }
 
-PlainOutputStream::PlainOutputStream(int fd, Endian endian)
-:OutputStream(endian), closed(false) {
+PlainOutputStream::PlainOutputStream(int fd) {
     file = fdopen(fd, "wb");
 }
 
-PlainOutputStream::~PlainOutputStream() {
-    if (!closed) {
-        close();
-    }
-}
+PlainOutputStream::~PlainOutputStream() {}
 
 ssize_t PlainOutputStream::write(const void *bytes, size_t size) {
     size_t result = fwrite(bytes, 1, size, file);
@@ -40,7 +34,6 @@ int PlainOutputStream::fd() {
 }
 
 void PlainOutputStream::close() {
-    closed = true;
     fclose(file);
 }
 

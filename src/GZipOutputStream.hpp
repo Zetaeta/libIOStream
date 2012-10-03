@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "OutputStream.hpp"
+#include "RawOutputStream.hpp"
 
 #ifndef ZLIB_H
 typedef struct gzFile_s *gzFile;
@@ -12,10 +12,10 @@ typedef struct gzFile_s *gzFile;
 
 namespace IOStream {
 
-class GZipOutputStream : public OutputStream {
+class GZipOutputStream : public RawOutputStream {
 public:
-    GZipOutputStream(const std::string &, Endian = NATIVE);
-    GZipOutputStream(int fd, Endian = NATIVE);
+    GZipOutputStream(const std::string &);
+    GZipOutputStream(int fd);
     ~GZipOutputStream();
 
     int fd();
@@ -26,7 +26,6 @@ public:
 private:
     gzFile file;
     int fd_;
-    bool closed;
 };
 
 }

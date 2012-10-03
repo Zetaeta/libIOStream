@@ -2,10 +2,12 @@
 #include <libendian/endian.h>
 
 #include "OutputStream.hpp"
+#include "RawOutputStream.hpp"
 
 namespace IOStream {
 
-OutputStream::OutputStream(Endian endian) {
+OutputStream::OutputStream(MaybePointer<RawOutputStream> raw, Endian endian)
+:raw(raw) {
     if (endian == NATIVE) {
         swap = false;
     }
@@ -15,76 +17,102 @@ OutputStream::OutputStream(Endian endian) {
 }
 
 OutputStream & OutputStream::operator<<(int8_t data) {
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(uint8_t data) {
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(int16_t data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(uint16_t data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(int32_t data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(uint32_t data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(int64_t data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(uint64_t data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(float data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(double data) {
     if (swap) {
         swapEndian(data);
     }
-    write(&data, sizeof(data));
+    raw->write(&data, sizeof(data));
+    return *this;
 }
 
 OutputStream & OutputStream::operator<<(const std::string &data) {
     uint16_t length(data.size());
     operator<<(length);
-    write(&data[0], length);
+    raw->write(&data[0], length);
+    return *this;
 }
 
-OutputStream::~OutputStream() {}
+ssize_t OutputStream::write(const void *buf, size_t length) {
+    return raw->write(buf, length);
+}
+
+void OutputStream::seek(size_t offset, int whence) {
+    raw->seek(offset, whence);
+}
+
+void OutputStream::close() {
+    raw->close();
+}
+
+
+OutputStream::~OutputStream() {
+    delete raw;
+}
 
 }
 

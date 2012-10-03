@@ -4,12 +4,14 @@
 #include <libendian/endian.h>
 
 #include "InputStream.hpp"
+#include "RawInputStream.hpp"
 
 using std::string;
 
 namespace IOStream {
 
-InputStream::InputStream(Endian endian) {
+InputStream::InputStream(MaybePointer<RawInputStream> raw, Endian endian)
+:raw(raw) {
     if (endian == NATIVE) {
         swap = false;
     }
@@ -19,64 +21,76 @@ InputStream::InputStream(Endian endian) {
 }
 
 InputStream & InputStream::operator>>(int8_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
+    return *this;
 }
+
 InputStream & InputStream::operator>>(uint8_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
+    return *this;
 }
 
 InputStream & InputStream::operator>>(int16_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(uint16_t &data) {
-    read(&data, sizeof(data));
-    if (swap) {
-        swapEndian(data);
-    } } 
-InputStream & InputStream::operator>>(int32_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
+} 
+InputStream & InputStream::operator>>(int32_t &data) {
+    raw->read(&data, sizeof(data));
+    if (swap) {
+        swapEndian(data);
+    }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(uint32_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(int64_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(uint64_t &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(float &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(double &data) {
-    read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
+    return *this;
 }
 
 InputStream & InputStream::operator>>(std::string &data) {
@@ -85,10 +99,11 @@ InputStream & InputStream::operator>>(std::string &data) {
     std::stringstream ss;
     for (int i=0; i<length; ++i) {
         char ch;
-        read(&ch, 1);
+        raw->read(&ch, 1);
         ss << ch;
     }
     data = ss.str();
+    return *this;
 }
 
 int8_t InputStream::readByte() {
@@ -157,8 +172,25 @@ string InputStream::readString() {
     return s;
 }
 
+ssize_t InputStream::read(void *buf, size_t length) {
+    return raw->read(buf, length);
+}
 
-InputStream::~InputStream() {}
+ssize_t InputStream::peek(void *buf, size_t length) {
+    return raw->peek(buf, length);
+}
+
+void InputStream::seek(size_t offset, int whence) {
+    raw->seek(offset, whence);
+}
+
+void InputStream::close() {
+    raw->close();
+}
+
+InputStream::~InputStream() {
+    delete &raw;
+}
 
 }
 
