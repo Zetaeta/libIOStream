@@ -2,12 +2,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <iostream>
 
 #include "FileInputStream.hpp"
 #include "ErrorHandler.hpp"
 
-using std::cout;
 
 namespace IOStream {
 
@@ -26,12 +24,6 @@ ssize_t FileInputStream::read(void *out, size_t length) {
     if (ret < 0) {
         throwException(errno);
     }
-    std::cout << "FileInputStream::read(): ret = " << ret << '\n';
-    cout << "bytes: {";
-    for (size_t i=0; i<ret; ++i) {
-        cout << uint16_t(static_cast<uint8_t *>(out)[i]) << ", "; 
-    }
-    cout << "}\n";
     return ret;
 }
 

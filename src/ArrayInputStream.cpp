@@ -2,31 +2,21 @@
 #include <sstream>
 #include <stdexcept>
 #include <string.h>
-#include <iostream>
 
 #include "ArrayInputStream.hpp"
 
 using std::ostringstream;
-using std::cout;
 
 namespace IOStream {
 
 ArrayInputStream::ArrayInputStream(void *bytes, size_t length)
 :buffer(length) {
 //    memcpy(buffer.begin(), bytes, length);
-    std::cout << "ArrayInputStream(): length = " << length << '\n';
     buffer.add(bytes, length);
 }
 
 ssize_t ArrayInputStream::read(void *out, size_t length) {
-    ssize_t ret = buffer.request(out, length);
-    cout << "ArrayInputStream::read(): ret = " << ret << '\n';
-    cout << "bytes: {";
-    for (size_t i=0; i<ret; ++i) {
-        cout << uint16_t(static_cast<uint8_t *>(out)[i]) << ", "; 
-    }
-    cout << "}\n";
-    return ret;
+    return buffer.request(out, length);
 }
 
 ssize_t ArrayInputStream::peek(void *out, size_t length) {

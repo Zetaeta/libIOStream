@@ -1,7 +1,6 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <iostream>
 #include <errno.h>
 #include <string.h>
 
@@ -13,7 +12,6 @@
 #endif
 
 using std::string;
-using std::cerr;
 
 namespace IOStream {
 
@@ -46,14 +44,6 @@ void GZipInputStream::init() {
     zstream.total_out = 0;
     zstream.data_type = Z_BINARY;
     int ret = inflateInit2(&zstream, 16 + MAX_WBITS);
-    if (ret == Z_OK) {
-    }
-    else if (ret == Z_STREAM_ERROR) {
-        cerr << "init(): Z_STREAM_ERROR\n";
-    }
-    else {
-        cerr << "init(): failure!\n";
-    }
 }
 
 ssize_t GZipInputStream::read(void *bytes, size_t size) {
@@ -76,14 +66,14 @@ ssize_t GZipInputStream::read(void *bytes, size_t size) {
         zstream.next_in = buffer.begin();
         inBefore = zstream.avail_in;
     }
-    if (returned == Z_STREAM_ERROR) {
+/*    if (returned == Z_STREAM_ERROR) {
         cerr << "Z_STREAM_ERROR!\n";
         if (zstream.msg) {
             cerr << "zstream.msg: " << zstream.msg << '\n';
         }
         cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
         cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
-    }
+    } */
     return size;
 }
 
@@ -98,7 +88,7 @@ void GZipInputStream::populateBuffer() {
     errno = 0;
     ssize_t bytesRead = raw->read(buffer.end(), buffer.spaceAfter());
     if (bytesRead < 0) {
-        cerr << "Error reading: " << strerror(errno) << '\n';
+//        cerr << "Error reading: " << strerror(errno) << '\n';
         return;
     }
     buffer.add(size_t(bytesRead));

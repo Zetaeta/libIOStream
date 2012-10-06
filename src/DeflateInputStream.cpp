@@ -1,7 +1,6 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <iostream>
 #include <errno.h>
 #include <string.h>
 
@@ -13,8 +12,6 @@
 #endif
 
 using std::string;
-using std::cerr;
-using std::cout;
 
 namespace IOStream {
 
@@ -48,14 +45,6 @@ void DeflateInputStream::init() {
     zstream.total_out = 0;
     zstream.data_type = Z_BINARY;
     int ret = inflateInit(&zstream);
-    if (ret == Z_OK) {
-    }
-    else if (ret == Z_STREAM_ERROR) {
-        cerr << "init(): Z_STREAM_ERROR\n";
-    }
-    else {
-        cerr << "init(): failure!\n";
-    }
 }
 
 ssize_t DeflateInputStream::read(void *bytes, size_t size) {
@@ -80,7 +69,7 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         zstream.avail_in = buffer.available();
         zstream.next_in = buffer.begin();
         inBefore = zstream.avail_in;
-        if (returned == Z_STREAM_ERROR) {
+/*        if (returned == Z_STREAM_ERROR) {
             cerr << "Z_STREAM_ERROR!\n";
             if (zstream.msg) {
                 cerr << "zstream.msg: " << zstream.msg << '\n';
@@ -110,7 +99,7 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
             }
             cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
             cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
-        }
+        } */
 /*        if (returned != Z_OK) {
             cerr << "returned != Z_OK!\n";
             if (zstream.msg) {
@@ -119,14 +108,14 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         }*/
         
     }
-    if (returned == Z_STREAM_ERROR) {
+/*    if (returned == Z_STREAM_ERROR) {
         cerr << "Z_STREAM_ERROR!\n";
         if (zstream.msg) {
             cerr << "zstream.msg: " << zstream.msg << '\n';
         }
         cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
         cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
-    }
+    } */
     return size;
 }
 
@@ -142,7 +131,7 @@ void DeflateInputStream::populateBuffer() {
     errno = 0;
     ssize_t bytesRead = raw->read(buffer.end(), buffer.spaceAfter());
     if (bytesRead < 0) {
-        cerr << "Error reading: " << strerror(errno) << '\n';
+//        cerr << "Error reading: " << strerror(errno) << '\n';
         return;
     }
     buffer.add(size_t(bytesRead));
