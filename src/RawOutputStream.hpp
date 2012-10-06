@@ -16,7 +16,7 @@ public:
     virtual ~RawOutputStream() = 0;
 
     virtual ssize_t write(const void *bytes, size_t size) = 0;
-    virtual void seek(size_t offset, int whence) = 0;
+    virtual off_t seek(off_t offset, int whence) = 0;
     virtual void close() = 0;
 };
 

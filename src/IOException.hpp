@@ -2,6 +2,7 @@
 #ifndef IOEXCEPTION_HPP
 #define IOEXCEPTION_HPP
 
+#include <string>
 #include <stdexcept>
 
 namespace IOStream {

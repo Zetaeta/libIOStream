@@ -6,7 +6,7 @@
 
 namespace IOStream {
 
-OutputStream::OutputStream(MaybePointer<RawOutputStream> raw, Endian endian)
+OutputStream::OutputStream(const MaybePointer<RawOutputStream> &raw, Endian endian)
 :raw(raw) {
     if (endian == NATIVE) {
         swap = false;
@@ -101,8 +101,8 @@ ssize_t OutputStream::write(const void *buf, size_t length) {
     return raw->write(buf, length);
 }
 
-void OutputStream::seek(size_t offset, int whence) {
-    raw->seek(offset, whence);
+off_t OutputStream::seek(off_t offset, int whence) {
+    return raw->seek(offset, whence);
 }
 
 void OutputStream::close() {
@@ -111,7 +111,6 @@ void OutputStream::close() {
 
 
 OutputStream::~OutputStream() {
-    delete raw;
 }
 
 }

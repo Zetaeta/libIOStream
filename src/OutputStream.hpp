@@ -16,7 +16,7 @@ class RawOutputStream;
 
 class OutputStream {
 public:
-    OutputStream(MaybePointer<RawOutputStream>, Endian = DEFAULT_ENDIAN);
+    OutputStream(const MaybePointer<RawOutputStream> &, Endian = DEFAULT_ENDIAN);
     OutputStream & operator<<(int8_t);
     OutputStream & operator<<(uint8_t);
     OutputStream & operator<<(int16_t);
@@ -31,7 +31,7 @@ public:
     virtual ~OutputStream();
 
     ssize_t write(const void *bytes, size_t size);
-    void seek(size_t offset, int whence);
+    off_t seek(off_t offset, int whence);
     void close();
 private:
     MaybePointer<RawOutputStream> raw;

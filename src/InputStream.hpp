@@ -16,7 +16,7 @@ class RawInputStream;
 
 class InputStream {
 public:
-    InputStream(MaybePointer<RawInputStream>, Endian = DEFAULT_ENDIAN);
+    InputStream(const MaybePointer<RawInputStream> &, Endian = DEFAULT_ENDIAN);
     InputStream & operator>>(int8_t &);
     InputStream & operator>>(uint8_t &);
     InputStream & operator>>(int16_t &);
@@ -56,7 +56,7 @@ public:
 
     ssize_t read(void *, size_t);
     ssize_t peek(void *, size_t);
-    void seek(size_t offset, int whence);
+    off_t seek(off_t offset, int whence);
     void close();
 
 private:

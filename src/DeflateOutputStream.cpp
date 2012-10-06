@@ -4,6 +4,7 @@
 
 #include "DeflateOutputStream.hpp"
 #include "Buffer.hpp"
+#include "FileOutputStream.hpp"
 
 #ifndef DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH
 #define DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH 256
@@ -13,7 +14,13 @@ namespace IOStream {
 
 using std::string;
 
-DeflateOutputStream::DeflateOutputStream(MaybePointer<RawOutputStream> raw)
+DeflateOutputStream::DeflateOutputStream(const string &filename)
+:DeflateOutputStream(new FileOutputStream(filename)) {}
+
+DeflateOutputStream::DeflateOutputStream(int fd)
+:DeflateOutputStream(new FileOutputStream(fd)) {}
+
+DeflateOutputStream::DeflateOutputStream(const MaybePointer<RawOutputStream> &raw)
 :buffer(DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH), raw(raw) {}
 
 DeflateOutputStream::~DeflateOutputStream() {}
@@ -54,12 +61,21 @@ void DeflateOutputStream::writeBuffer() {
     buffer.shiftToStart();
 }
 
-void DeflateOutputStream::seek(size_t offset, int whence) {
-    raw->seek(offset, whence);
+off_t DeflateOutputStream::seek(off_t offset, int whence) {
+    return raw->seek(offset, whence);
+}
+
+void DeflateOutputStream::finish() {
+    writeBuffer(); // Flush buffer.
+    zstream.avail_out = buffer.spaceAfter();
+    zstream.next_out = buffer.begin();
+    deflateEnd(&zstream);
+    buffer.add(buffer.spaceAfter() - zstream.avail_out); // update buffer pos after deflateEnd
+    writeBuffer(); // Flush output of deflateEnd from buffer.
 }
 
 void DeflateOutputStream::close() {
-    deflateEnd(&zstream);
+    finish();
     raw->close();
 }
 

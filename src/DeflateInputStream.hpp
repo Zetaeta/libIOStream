@@ -17,15 +17,19 @@ namespace IOStream {
 
 class DeflateInputStream : public RawInputStream {
 public:
-    DeflateInputStream(MaybePointer<RawInputStream> raw);
+    DeflateInputStream(const std::string &);
+    DeflateInputStream(int fd);
+
+    DeflateInputStream(const MaybePointer<RawInputStream> &raw);
     ~DeflateInputStream();
 
     int fd();
     
     ssize_t read(void *bytes, size_t size);
     ssize_t peek(void *bytes, size_t size);
-    void seek(size_t offset, int whence);
+    off_t seek(off_t offset, int whence);
     void putBack();
+    void finish();
     void close();
 private:
     void init();

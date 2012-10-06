@@ -13,7 +13,7 @@ using std::ostringstream;
 
 namespace IOStream {
 
-Buffer::Buffer(int length)
+Buffer::Buffer(size_t length)
 :startPos(0), endPos(0), fullSize_(length) {
     buf = new uint8_t[length];
 }
@@ -25,20 +25,21 @@ uint8_t Buffer::take() {
     return buf[startPos++];
 }
 
-void Buffer::take(uint8_t *output, size_t len) {
+void Buffer::take(void *output, size_t len) {
     if ((endPos - startPos) < len) {
         ostringstream ss;
         ss << "Not enough bytes in buffer: contains " << (endPos - startPos) << ", " << len << " required";
         throw underflow_error(ss.str());
     }
-    memcpy(output, buf, len);
+    memcpy(output, begin(), len);
     startPos += len;
 }
 
-size_t Buffer::request(uint8_t *output, size_t len) {
+size_t Buffer::request(void *output, size_t len) {
     size_t taken = min(len, (endPos - startPos));
-    memcpy(output, buf, taken);
+    memcpy(output, begin(), taken);
     startPos += taken;
+    return taken;
 }
 
 uint8_t * Buffer::take(size_t len) {
@@ -52,7 +53,7 @@ uint8_t * Buffer::take(size_t len) {
     return cur;
 }
 
-void Buffer::add(uint8_t *bytes, size_t len) {
+void Buffer::add(const void *bytes, size_t len) {
     if ((fullSize_  - endPos) < len) {
         ostringstream ss;
         ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
@@ -62,7 +63,7 @@ void Buffer::add(uint8_t *bytes, size_t len) {
     endPos += len;
 }
 
-size_t Buffer::offer(uint8_t *bytes, size_t len) {
+size_t Buffer::offer(const void *bytes, size_t len) {
     size_t taken = min(len, fullSize_ - endPos);
     memcpy(&buf[endPos], bytes, taken);
     endPos += taken;
@@ -94,23 +95,40 @@ Buffer::iterator Buffer::trueEnd() {
     return &buf[fullSize_];
 }
 
-size_t Buffer::availableBytes() {
+Buffer::const_iterator Buffer::begin() const {
+    return &buf[startPos];
+}
+
+Buffer::const_iterator Buffer::end() const {
+    return &buf[endPos];
+}
+
+Buffer::const_iterator Buffer::trueBegin() const {
+    return buf;
+}
+
+Buffer::const_iterator Buffer::trueEnd() const {
+    return &buf[fullSize_];
+}
+
+
+size_t Buffer::availableBytes() const {
     return endPos - startPos;
 }
 
-size_t Buffer::available() {
+size_t Buffer::available() const {
     return endPos - startPos;
 }
 
-size_t Buffer::spaceAfter() {
+size_t Buffer::spaceAfter() const {
     return fullSize_ - endPos;
 }
 
-size_t Buffer::spaceBefore() {
+size_t Buffer::spaceBefore() const {
     return startPos;
 }
 
-size_t Buffer::totalSpace() {
+size_t Buffer::totalSpace() const {
     return fullSize_ - (endPos - startPos);
 }
 
@@ -127,12 +145,36 @@ void Buffer::shiftToStart() {
     startPos = 0;
 }
 
-size_t Buffer::fullSize() {
+size_t Buffer::fullSize() const {
     return fullSize_;
 }
 
-uint8_t Buffer::operator[](size_t index) {
+uint8_t Buffer::operator[](size_t index) const {
     return buf[startPos + index];
+}
+
+void Buffer::resize(size_t length) {
+    uint8_t *newBuf = new uint8_t[length];
+    memcpy(newBuf, &buf[startPos], endPos - startPos);
+    delete[] buf;
+    buf = newBuf;
+    endPos -= startPos;
+    startPos = 0;
+}
+
+off_t Buffer::seek(off_t length, int whence) {
+    switch (whence) {
+    case SEEK_SET:
+        startPos = length;
+        break;
+    case SEEK_CUR:
+        startPos += length;
+        break;
+    case SEEK_END:
+        startPos = endPos - length;
+        break;
+    }
+    return startPos;
 }
 
 }

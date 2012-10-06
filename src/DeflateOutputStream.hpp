@@ -17,14 +17,17 @@ namespace IOStream {
 
 class DeflateOutputStream : public RawOutputStream {
 public:
-//    DeflateOutputStream(const std::string &);
-    DeflateOutputStream(MaybePointer<RawOutputStream>);
+    DeflateOutputStream(const std::string &);
+    DeflateOutputStream(int fd);
+
+    DeflateOutputStream(const MaybePointer<RawOutputStream> &);
     ~DeflateOutputStream();
 
     int fd();
 
     ssize_t write(const void *bytes, size_t size);
-    void seek(size_t offset, int whence);
+    off_t seek(off_t offset, int whence);
+    void finish();
     void close();
 private:
     void init();

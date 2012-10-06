@@ -10,7 +10,7 @@ using std::string;
 
 namespace IOStream {
 
-InputStream::InputStream(MaybePointer<RawInputStream> raw, Endian endian)
+InputStream::InputStream(const MaybePointer<RawInputStream> &raw, Endian endian)
 :raw(raw) {
     if (endian == NATIVE) {
         swap = false;
@@ -31,7 +31,7 @@ InputStream & InputStream::operator>>(uint8_t &data) {
 }
 
 InputStream & InputStream::operator>>(int16_t &data) {
-    raw->read(&data, sizeof(data));
+//    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }
@@ -127,6 +127,7 @@ int16_t InputStream::readShort() {
 uint16_t InputStream::readUShort() {
     uint16_t i;
     operator>>(i);
+//    operator>>(i);
     return i;
 }
 
@@ -180,8 +181,8 @@ ssize_t InputStream::peek(void *buf, size_t length) {
     return raw->peek(buf, length);
 }
 
-void InputStream::seek(size_t offset, int whence) {
-    raw->seek(offset, whence);
+off_t InputStream::seek(off_t offset, int whence) {
+    return raw->seek(offset, whence);
 }
 
 void InputStream::close() {
@@ -189,7 +190,6 @@ void InputStream::close() {
 }
 
 InputStream::~InputStream() {
-    delete &raw;
 }
 
 }

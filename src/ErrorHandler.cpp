@@ -1,10 +1,13 @@
 
 #include <errno.h>
+#include <string.h>
 
 #include "ErrorHandler.hpp"
 #include "InvalidFileDescriptor.hpp"
 #include "IOError.hpp"
-#include "InvalidIOOperaton.hpp"
+#include "InvalidIOOperation.hpp"
+
+using std::string;
 
 namespace IOStream {
 

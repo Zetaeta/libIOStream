@@ -8,7 +8,7 @@ namespace IOStream {
 
 class InvalidIOOperation : public IOException {
 public:
-    InvalidIOOperation(const std::string &what = "UnsupportedOperationException");
+    InvalidIOOperation(const std::string &what = "UnsupportedOperationException")
     :IOException(what) {}
 };
 

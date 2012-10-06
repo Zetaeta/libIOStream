@@ -11,7 +11,7 @@ public:
     InvalidFileDescriptor(const std::string &what)
     :IOException(what) {
     }
-}
+};
 
 }
 

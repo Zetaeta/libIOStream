@@ -1,6 +1,8 @@
 
-#ifndef FILEINPUTSTREAM_HPP
-#define FILEINPUTSTREAM_HPP
+#ifndef FILEOUTPUTSTREAM_HPP
+#define FILEOUTPUTSTREAM_HPP
+
+#include <string>
 
 #include "RawOutputStream.hpp"
 
@@ -11,8 +13,12 @@ public:
     FileOutputStream(const std::string &);
     FileOutputStream(int fg);
 
+    inline int fd() const {
+        return fd_;
+    }
+
     ssize_t write(const void *, size_t length);
-    void seek(size_t offset, int whence);
+    off_t seek(off_t offset, int whence);
     void close();
 private:
     int fd_;

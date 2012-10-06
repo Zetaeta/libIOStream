@@ -8,16 +8,27 @@ template <typename T>
 class MaybePointer {
 public:
     MaybePointer(T *p)
-    :ptr(p), ref(*p), isPointer(true) {}
+    :ptr(p), isPointer(true) {}
+
     MaybePointer(T &r)
-    :ptr(&r), ref(r), isPointer(false) {}
+    :ptr(&r), isPointer(false) {}
+
+    MaybePointer(MaybePointer<T> &&other)
+    :ptr(other.ptr), isPointer(other.isPointer) {
+        other.isPointer = false;
+    }
+
+    MaybePointer(const MaybePointer<T> &other)
+    :ptr(other.ptr), isPointer(other.isPointer) {
+        other.isPointer = false;
+    }
 
     T & operator*() {
-        return ref;
+        return *ptr;
     }
 
     const T & operator*() const {
-        return ref;
+        return *ptr;
     }
 
     T * operator->() {
@@ -32,6 +43,10 @@ public:
         return ptr;
     }
 
+    operator const T*() const {
+        return ptr;
+    }
+
 //    operator const T*() const {
 //        return ptr;
 //    }
@@ -43,8 +58,7 @@ public:
     }
 private:
     T *ptr;
-    T &ref;
-    bool isPointer;
+    mutable bool isPointer; // Must be mutable for modification in copy constructor
 };
 
 }
