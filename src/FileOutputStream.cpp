@@ -2,8 +2,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <Util/ErrorHandler.hpp>
+
 #include "FileOutputStream.hpp"
-#include "ErrorHandler.hpp"
+
+using Util::throwException;
 
 namespace IOStream {
 

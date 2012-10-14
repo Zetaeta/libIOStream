@@ -1,8 +1,11 @@
 
-#include <libendian/endian.h>
+#include <Util/Endian.h>
 
 #include "OutputStream.hpp"
 #include "RawOutputStream.hpp"
+#include "FileOutputStream.hpp"
+
+using Util::MaybePointer;
 
 namespace IOStream {
 
@@ -15,6 +18,12 @@ OutputStream::OutputStream(const MaybePointer<RawOutputStream> &raw, Endian endi
         swap = bigEndian ? (endian == LITTLE) : (endian == BIG);
     }
 }
+
+OutputStream::OutputStream(const std::string &filename)
+:OutputStream(new FileOutputStream(filename)) {}
+
+OutputStream::OutputStream(int fd)
+:OutputStream(new FileOutputStream(fd)) {}
 
 OutputStream & OutputStream::operator<<(int8_t data) {
     raw->write(&data, sizeof(data));

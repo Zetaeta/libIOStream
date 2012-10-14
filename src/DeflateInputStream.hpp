@@ -7,7 +7,7 @@
 
 #include "RawInputStream.hpp"
 #include "Buffer.hpp"
-#include "MaybePointer.hpp"
+#include <Util/MaybePointer.hpp>
 
 #ifndef ZLIB_H
 typedef struct gzFile_s *gzFile;
@@ -20,7 +20,7 @@ public:
     DeflateInputStream(const std::string &);
     DeflateInputStream(int fd);
 
-    DeflateInputStream(const MaybePointer<RawInputStream> &raw);
+    DeflateInputStream(const Util::MaybePointer<RawInputStream> &raw);
     ~DeflateInputStream();
 
     int fd();
@@ -37,7 +37,7 @@ private:
 
     z_stream zstream;
     Buffer buffer;
-    MaybePointer<RawInputStream> raw;
+    Util::MaybePointer<RawInputStream> raw;
 };
 
 }

@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
@@ -7,16 +9,19 @@
 #include "GZipInputStream.hpp"
 #include "FileInputStream.hpp"
 
-#ifndef DEFLATE_INPUT_STREAM_BUFFER_LENGTH
-#define DEFLATE_INPUT_STREAM_BUFFER_LENGTH 256
+#ifndef GZIP_INPUT_STREAM_BUFFER_LENGTH
+#define GZIP_INPUT_STREAM_BUFFER_LENGTH 256
 #endif
 
 using std::string;
+using std::cout;
+
+using Util::MaybePointer;
 
 namespace IOStream {
 
 GZipInputStream::GZipInputStream(const MaybePointer<RawInputStream> &raw)
-:buffer(DEFLATE_INPUT_STREAM_BUFFER_LENGTH), raw(raw) {
+:buffer(GZIP_INPUT_STREAM_BUFFER_LENGTH), raw(raw) {
     init();
 }
 
@@ -43,7 +48,7 @@ void GZipInputStream::init() {
     zstream.total_in = 0;
     zstream.total_out = 0;
     zstream.data_type = Z_BINARY;
-    int ret = inflateInit2(&zstream, 16 + MAX_WBITS);
+    inflateInit2(&zstream, 16 + MAX_WBITS);
 }
 
 ssize_t GZipInputStream::read(void *bytes, size_t size) {
@@ -56,10 +61,10 @@ ssize_t GZipInputStream::read(void *bytes, size_t size) {
     zstream.avail_in = buffer.available();
     zstream.next_out = static_cast<uint8_t *>(bytes);
     zstream.avail_out = size;
-    int returned = 0;
+//    int returned = 0;
     int inBefore = zstream.avail_in;
     while ((zstream.avail_out != 0)) { // While there is space in `bytes` and no buffer error.
-        returned = inflate(&zstream, Z_SYNC_FLUSH);
+        /* returned = */ inflate(&zstream, Z_SYNC_FLUSH);
         buffer.take(inBefore - zstream.avail_in);
         populateBuffer();
         zstream.avail_in = buffer.available();
@@ -74,6 +79,9 @@ ssize_t GZipInputStream::read(void *bytes, size_t size) {
         cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
         cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
     } */
+    for (size_t i=0; i<size; ++i) {
+        cout << "GZ: read byte: " << uint16_t(*static_cast<uint8_t *>(bytes)) << '\n';
+    }
     return size;
 }
 

@@ -3,6 +3,7 @@
 #define BUFFER_HPP
 
 #include <stdint.h>
+#include <sys/types.h>
 
 namespace IOStream {
 
@@ -11,7 +12,7 @@ public:
     typedef uint8_t *iterator;
     typedef const uint8_t *const_iterator;
 
-    Buffer(size_t length);
+    Buffer(size_t length, bool autoResize = false);
     uint8_t take();
     void take(void *output, size_t len);
     size_t request(void *output, size_t len);
@@ -19,6 +20,7 @@ public:
     void add(const void *bytes, size_t len);
     size_t offer(const void *bytes, size_t len);
     void add(size_t len);
+    void addByte(uint8_t);
     iterator begin();
     iterator end();
     iterator trueBegin();
@@ -44,8 +46,10 @@ private:
     size_t endPos;
     size_t fullSize_;
     uint8_t *buf;
+    bool autoResize;
 };
 
 }
 
 #endif
+

@@ -14,6 +14,8 @@ public:
     ssize_t write(const void *out, size_t length);
     off_t seek(off_t offset, int whence);
     void close();
+
+    uint8_t * data();
 private:
     Buffer buffer;
 };

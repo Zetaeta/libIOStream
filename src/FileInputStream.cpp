@@ -3,9 +3,11 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "FileInputStream.hpp"
-#include "ErrorHandler.hpp"
+#include <Util/ErrorHandler.hpp>
 
+#include "FileInputStream.hpp"
+
+using Util::throwException;
 
 namespace IOStream {
 

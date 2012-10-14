@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #include "Endian.hpp"
-#include "MaybePointer.hpp"
+#include <Util/MaybePointer.hpp>
 
 namespace IOStream {
 
@@ -16,7 +16,15 @@ class RawInputStream;
 
 class InputStream {
 public:
-    InputStream(const MaybePointer<RawInputStream> &, Endian = DEFAULT_ENDIAN);
+    InputStream(const Util::MaybePointer<RawInputStream> & = NULL, Endian = DEFAULT_ENDIAN);
+    InputStream(const std::string &filename);
+    InputStream(int fd);
+
+    InputStream & operator=(InputStream &&other) {
+        raw = other.raw;
+        return *this;
+    }
+
     InputStream & operator>>(int8_t &);
     InputStream & operator>>(uint8_t &);
     InputStream & operator>>(int16_t &);
@@ -27,7 +35,8 @@ public:
     InputStream & operator>>(uint64_t &);
     InputStream & operator>>(float &);
     InputStream & operator>>(double &);
-    InputStream & operator>>(std::string &);
+    // Virtual due to different implementations of string storage, eg UTF-8 for NBT but UCS-2 for MC network.
+    virtual InputStream & operator>>(std::string &);
 
     int8_t readByte();
     uint8_t readUByte();
@@ -59,8 +68,8 @@ public:
     off_t seek(off_t offset, int whence);
     void close();
 
-private:
-    MaybePointer<RawInputStream> raw;
+protected:
+    Util::MaybePointer<RawInputStream> raw;
     bool swap;
 };
 

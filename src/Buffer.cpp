@@ -3,30 +3,33 @@
 #include <stdexcept>
 #include <sstream>
 #include <string.h>
+#include <iostream>
 
 #include "Buffer.hpp"
 
 using std::underflow_error;
 using std::overflow_error;
 using std::min;
+using std::max;
 using std::ostringstream;
+using std::cout;
 
 namespace IOStream {
 
-Buffer::Buffer(size_t length)
-:startPos(0), endPos(0), fullSize_(length) {
+Buffer::Buffer(size_t length, bool autoResize)
+:startPos(0), endPos(0), fullSize_(length), autoResize(autoResize) {
     buf = new uint8_t[length];
 }
 
 uint8_t Buffer::take() {
-    if ((endPos - startPos) < 1) {
+    if (ssize_t(endPos - startPos) < 1) {
         throw underflow_error("Buffer is empty!");
     }
     return buf[startPos++];
 }
 
 void Buffer::take(void *output, size_t len) {
-    if ((endPos - startPos) < len) {
+    if (ssize_t(endPos - startPos) < ssize_t(len)) {
         ostringstream ss;
         ss << "Not enough bytes in buffer: contains " << (endPos - startPos) << ", " << len << " required";
         throw underflow_error(ss.str());
@@ -43,7 +46,7 @@ size_t Buffer::request(void *output, size_t len) {
 }
 
 uint8_t * Buffer::take(size_t len) {
-    if ((endPos - startPos) < len) {
+    if (ssize_t(endPos - startPos) < ssize_t(len)) {
         ostringstream ss;
         ss << "Not enough bytes in buffer: contains " << (endPos - startPos) << ", " << len << " taken";
         throw underflow_error(ss.str());
@@ -53,11 +56,43 @@ uint8_t * Buffer::take(size_t len) {
     return cur;
 }
 
+void Buffer::addByte(uint8_t b) {
+    if (ssize_t(fullSize_ - endPos) < 1) {
+        cout << "fullSize_ - endPos < 1\n";
+        if (autoResize) {
+            cout << "autoResizing!\n";
+            if (fullSize_ - (endPos - startPos) >= 1) {
+                cout << "fullSize_ - (endPos - startPos) >= 1, shifting to start!\n";
+                shiftToStart();
+            }
+            else {
+                size_t newSize = fullSize_ + max(size_t(1), fullSize_ > 128 ? fullSize_ / 2 : fullSize_);
+                resize(newSize);
+            }
+        }
+        else {
+            throw overflow_error("Cannot add byte: buffer is full");
+        }
+    }
+    cout << "Buffer::addByte(): fullSize_ = " << fullSize_ << ", endPos = " << endPos << '\n';
+    buf[endPos++] = b;
+}
+
 void Buffer::add(const void *bytes, size_t len) {
-    if ((fullSize_  - endPos) < len) {
-        ostringstream ss;
-        ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
-        throw overflow_error(ss.str());
+    if (ssize_t(fullSize_ - endPos) < ssize_t(len)) {
+        if (autoResize) {
+            if (fullSize_ - (endPos - startPos) >= len) {
+                shiftToStart();
+            }
+            else {
+                resize(fullSize_ + max(len, fullSize_ > 128 ? fullSize_ / 2 : fullSize_));
+            }
+        }
+        else {
+            ostringstream ss;
+            ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
+            throw overflow_error(ss.str());
+        }
     }
     memcpy(&buf[endPos], bytes, len);
     endPos += len;
@@ -71,10 +106,20 @@ size_t Buffer::offer(const void *bytes, size_t len) {
 }
 
 void Buffer::add(size_t len) {
-    if ((fullSize_ - endPos) < len) {
-        ostringstream ss;
-        ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
-        throw overflow_error(ss.str());
+    if (ssize_t(fullSize_ - endPos) < ssize_t(len)) {
+        if (autoResize) {
+            if (fullSize_ - (endPos - startPos) >= len) {
+                shiftToStart();
+            }
+            else {
+                resize(fullSize_ + max(len, fullSize_ > 128 ? fullSize_ / 2 : fullSize_));
+            }
+        }
+        else {
+            ostringstream ss;
+            ss << "Cannot add bytes: space available: " << (fullSize_ - endPos) << ", " << len << " required.";
+            throw overflow_error(ss.str());
+        }
     }
     endPos += len;
 }
@@ -155,11 +200,12 @@ uint8_t Buffer::operator[](size_t index) const {
 
 void Buffer::resize(size_t length) {
     uint8_t *newBuf = new uint8_t[length];
-    memcpy(newBuf, &buf[startPos], endPos - startPos);
+    memcpy(newBuf, &buf[startPos], min(endPos - startPos, length));
     delete[] buf;
     buf = newBuf;
     endPos -= startPos;
     startPos = 0;
+    fullSize_ = length;
 }
 
 off_t Buffer::seek(off_t length, int whence) {

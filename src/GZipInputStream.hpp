@@ -7,7 +7,7 @@
 
 #include "RawInputStream.hpp"
 #include "Buffer.hpp"
-#include "MaybePointer.hpp"
+#include <Util/MaybePointer.hpp>
 
 #ifndef ZLIB_H
 typedef struct gzFile_s *gzFile;
@@ -21,7 +21,7 @@ public:
 
     GZipInputStream(int fd);
 
-    GZipInputStream(const MaybePointer<RawInputStream> &raw);
+    GZipInputStream(const Util::MaybePointer<RawInputStream> &raw);
 
     ~GZipInputStream();
 
@@ -38,7 +38,7 @@ private:
 
     z_stream zstream;
     Buffer buffer;
-    MaybePointer<RawInputStream> raw;
+    Util::MaybePointer<RawInputStream> raw;
 };
 
 }

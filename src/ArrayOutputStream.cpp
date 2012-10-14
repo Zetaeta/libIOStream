@@ -22,6 +22,10 @@ off_t ArrayOutputStream::seek(off_t offset, int whence) {
     return buffer.seek(offset, whence);
 }
 
+uint8_t * ArrayOutputStream::data() {
+    return buffer.begin();
+}
+
 void ArrayOutputStream::close() {
 }
 

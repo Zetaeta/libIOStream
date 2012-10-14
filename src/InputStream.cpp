@@ -1,12 +1,15 @@
 
 #include <sstream>
 
-#include <libendian/endian.h>
+#include <Util/Endian.h>
 
 #include "InputStream.hpp"
 #include "RawInputStream.hpp"
+#include "FileInputStream.hpp"
 
 using std::string;
+
+using Util::MaybePointer;
 
 namespace IOStream {
 
@@ -20,6 +23,12 @@ InputStream::InputStream(const MaybePointer<RawInputStream> &raw, Endian endian)
     }
 }
 
+InputStream::InputStream(const std::string &filename)
+:InputStream(new FileInputStream(filename)) {}
+
+InputStream::InputStream(int fd)
+:InputStream(new FileInputStream(fd)) {}
+
 InputStream & InputStream::operator>>(int8_t &data) {
     raw->read(&data, sizeof(data));
     return *this;
@@ -31,7 +40,7 @@ InputStream & InputStream::operator>>(uint8_t &data) {
 }
 
 InputStream & InputStream::operator>>(int16_t &data) {
-//    raw->read(&data, sizeof(data));
+    raw->read(&data, sizeof(data));
     if (swap) {
         swapEndian(data);
     }

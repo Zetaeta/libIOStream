@@ -13,6 +13,8 @@
 
 using std::string;
 
+using Util::MaybePointer;
+
 namespace IOStream {
 
 DeflateInputStream::DeflateInputStream(const string &filename)
@@ -44,7 +46,7 @@ void DeflateInputStream::init() {
     zstream.total_in = 0;
     zstream.total_out = 0;
     zstream.data_type = Z_BINARY;
-    int ret = inflateInit(&zstream);
+    inflateInit(&zstream);
 }
 
 ssize_t DeflateInputStream::read(void *bytes, size_t size) {
@@ -58,12 +60,10 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
     zstream.avail_in = buffer.available();
     zstream.next_out = static_cast<uint8_t *>(bytes);
     zstream.avail_out = size;
-    int returned = 0;
+//    int returned = 0;
     int inBefore = zstream.avail_in;
     while ((zstream.avail_out != 0)) { // While there is space in `bytes` and no buffer error.
-//        cout << "About to inflate, buffer.available() = " << buffer.available() << '\n';
-        returned = inflate(&zstream, Z_SYNC_FLUSH);
-//        cout << "Bytes taken: " << (inBefore - zstream.avail_in) << '\n';
+        /* returned = */ inflate(&zstream, Z_SYNC_FLUSH);
         buffer.take(inBefore - zstream.avail_in);
         populateBuffer();
         zstream.avail_in = buffer.available();

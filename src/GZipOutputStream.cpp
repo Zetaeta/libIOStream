@@ -9,9 +9,11 @@
 #define DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH 256
 #endif
 
-namespace IOStream {
-
 using std::string;
+
+using Util::MaybePointer;
+
+namespace IOStream {
 
 GZipOutputStream::GZipOutputStream(const MaybePointer<RawOutputStream> &raw)
 :buffer(DEFLATE_OUTPUT_STREAM_BUFFER_LENGTH), raw(raw) {}
@@ -43,9 +45,10 @@ ssize_t GZipOutputStream::write(const void *bytes, size_t size) {
     zstream.avail_out = buffer.spaceAfter();
     zstream.next_in = static_cast<uint8_t *>(const_cast<void *>(bytes));
     zstream.avail_in = size;
-    int returned = Z_STREAM_END;
+//    int returned = Z_STREAM_END;
     int outBefore = zstream.avail_out;
-    while ((zstream.avail_in != 0) && ((returned = deflate(&zstream, Z_FINISH)) != Z_BUF_ERROR)) { // While there is space in `bytes` and no buffer error.
+    while ((zstream.avail_in != 0)) { // While there is space in `bytes` and no buffer error.
+        deflate(&zstream, Z_SYNC_FLUSH);
         buffer.add(size_t(outBefore - zstream.avail_out));
         writeBuffer();
         zstream.next_out = buffer.end();
