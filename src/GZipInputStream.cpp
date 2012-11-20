@@ -1,6 +1,4 @@
 
-#include <iostream>
-
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
@@ -14,7 +12,6 @@
 #endif
 
 using std::string;
-using std::cout;
 
 using Util::MaybePointer;
 
@@ -79,9 +76,6 @@ ssize_t GZipInputStream::read(void *bytes, size_t size) {
         cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
         cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
     } */
-    for (size_t i=0; i<size; ++i) {
-        cout << "GZ: read byte: " << uint16_t(*static_cast<uint8_t *>(bytes)) << '\n';
-    }
     return size;
 }
 

@@ -6,7 +6,7 @@ lib_LTLIBRARIES = libIOStream.la
 
 libIOStream_la_CXXFLAGS = -g -fPIC -Wall -std=c++11 -O0 -Werror
 
-libIOStream_la_LDFLAGS = -lZUtil
+libIOStream_la_LDFLAGS = -lZUtil -lcrypto
 
 libIOStream_la_includedir = $(includedir)/IOStream
 

@@ -1,5 +1,8 @@
 
+#include <algorithm>
+
 #include "ArrayOutputStream.hpp"
+
 
 namespace IOStream {
 
@@ -12,7 +15,7 @@ size_t ArrayOutputStream::size() const {
 
 ssize_t ArrayOutputStream::write(const void *out, size_t length) {
     if (buffer.spaceAfter() < length) {
-        buffer.resize(buffer.fullSize() < 128 ? buffer.fullSize() * 2 : buffer.fullSize() * 1.5);
+        buffer.resize(buffer.fullSize() + std::max(length, buffer.fullSize() < 128 ? buffer.fullSize() * 2 : size_t(buffer.fullSize() * 1.5)));
     }
     buffer.add(out, length);
     return length;

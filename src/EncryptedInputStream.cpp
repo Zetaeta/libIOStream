@@ -7,6 +7,8 @@
 
 #include <openssl/evp.h>
 
+#include <Util/ErrorHandler.hpp>
+
 #include "EncryptedInputStream.hpp"
 
 using std::min;
@@ -25,16 +27,24 @@ ssize_t EncryptedInputStream::read(void *buf, size_t count) {
             }
             if (input.available() == 0) { // Input buffer is empty.
                 populateInput();
+//                cout << "Populated input: input = (" << std::hex;
+//                for (size_t i=0; i<input.available(); ++i) {
+//                    cout << "0x" << uint16_t(input[i]) << ", ";
+//                }
+//                cout << ")\n" << std::dec;
             }
             int outLen, inLen = min(input.available(), output.spaceAfter() - decryptor->cipher->block_size);
             EVP_DecryptUpdate(decryptor, output.end(), &outLen, input.begin(), inLen);
+//            cout << "DecryptUpdated: output = (" << std::hex;
+//            for (int i=0; i<outLen; ++i) {
+//                cout << "0x" << uint16_t(output.end()[i]) << ", ";
+//            }
+//            cout << ")\n" << std::dec;
             input.take(inLen);
             output.add(outLen);
         }
         int copy = min(count - added, output.available());
-//        memcpy(buf, output.begin(), copy);
-        output.take(copy);
-        output.take(buf, copy);
+        output.take(static_cast<uint8_t *>(buf) + added, copy);
         added += copy;
     }
     return added;
@@ -44,6 +54,7 @@ void EncryptedInputStream::populateInput() {
     input.shiftToStart();
     ssize_t bytesRead = ::read(socketfd, input.end(), input.spaceAfter());
     if (bytesRead < 0) {
+        throwException(errno);
         return;
     }
     input.add(bytesRead);

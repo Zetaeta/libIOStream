@@ -6,8 +6,6 @@
 
 #include "FileOutputStream.hpp"
 
-using Util::throwException;
-
 namespace IOStream {
 
 FileOutputStream::FileOutputStream(const std::string &file) {

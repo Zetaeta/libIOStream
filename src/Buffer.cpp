@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <sstream>
 #include <string.h>
-#include <iostream>
 
 #include "Buffer.hpp"
 
@@ -12,7 +11,6 @@ using std::overflow_error;
 using std::min;
 using std::max;
 using std::ostringstream;
-using std::cout;
 
 namespace IOStream {
 
@@ -58,11 +56,8 @@ uint8_t * Buffer::take(size_t len) {
 
 void Buffer::addByte(uint8_t b) {
     if (ssize_t(fullSize_ - endPos) < 1) {
-        cout << "fullSize_ - endPos < 1\n";
         if (autoResize) {
-            cout << "autoResizing!\n";
             if (fullSize_ - (endPos - startPos) >= 1) {
-                cout << "fullSize_ - (endPos - startPos) >= 1, shifting to start!\n";
                 shiftToStart();
             }
             else {
@@ -74,7 +69,7 @@ void Buffer::addByte(uint8_t b) {
             throw overflow_error("Cannot add byte: buffer is full");
         }
     }
-    cout << "Buffer::addByte(): fullSize_ = " << fullSize_ << ", endPos = " << endPos << '\n';
+//    cout << "Buffer::addByte(): fullSize_ = " << fullSize_ << ", endPos = " << endPos << '\n';
     buf[endPos++] = b;
 }
 
@@ -183,7 +178,7 @@ void Buffer::shiftToStart() {
     }
     if (startPos == endPos) { // Buffer is empty.
         startPos = 0;
-        endPos = 1;
+        endPos = 0;
     }
     memmove(buf, &buf[startPos], endPos - startPos);
     endPos -= startPos;

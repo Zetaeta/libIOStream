@@ -66,6 +66,9 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         /* returned = */ inflate(&zstream, Z_SYNC_FLUSH);
         buffer.take(inBefore - zstream.avail_in);
         populateBuffer();
+        if (buffer.available() == 0) {
+            break;
+        }
         zstream.avail_in = buffer.available();
         zstream.next_in = buffer.begin();
         inBefore = zstream.avail_in;
@@ -108,15 +111,7 @@ ssize_t DeflateInputStream::read(void *bytes, size_t size) {
         }*/
         
     }
-/*    if (returned == Z_STREAM_ERROR) {
-        cerr << "Z_STREAM_ERROR!\n";
-        if (zstream.msg) {
-            cerr << "zstream.msg: " << zstream.msg << '\n';
-        }
-        cerr << "next_in = " << static_cast<void *>(zstream.next_in) << '\n';
-        cerr << "next_out = " << static_cast<void *>(zstream.next_out) << '\n';
-    } */
-    return size;
+    return size - zstream.avail_out;
 }
 
 void DeflateInputStream::populateBuffer() {

@@ -7,8 +7,6 @@
 
 #include "FileInputStream.hpp"
 
-using Util::throwException;
-
 namespace IOStream {
 
 FileInputStream::FileInputStream(const std::string &file) {
