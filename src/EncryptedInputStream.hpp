@@ -4,10 +4,10 @@
 
 #include <stdint.h>
 
-#include <IOStream/Buffer.hpp>
 #include <Util/stlfwd.hpp>
 
 #include "RawInputStream.hpp"
+#include "Buffer.hpp"
 
 #ifndef CIPHER_BUFFER_LENGTH
 #define CIPHER_BUFFER_LENGTH 1024
