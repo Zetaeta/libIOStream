@@ -9,8 +9,7 @@
 
 #ifndef DEFLATE_INPUT_STREAM_BUFFER_LENGTH
 #define DEFLATE_INPUT_STREAM_BUFFER_LENGTH 256
-#endif
-
+#endif 
 using std::string;
 
 using Util::MaybePointer;
@@ -123,7 +122,7 @@ void DeflateInputStream::populateBuffer() {
 //        zstream.avail_in = buffer.available();
         return;
     }
-    errno = 0;
+//    errno = 0;
     ssize_t bytesRead = raw->read(buffer.end(), buffer.spaceAfter());
     if (bytesRead < 0) {
 //        cerr << "Error reading: " << strerror(errno) << '\n';

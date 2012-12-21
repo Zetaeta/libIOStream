@@ -16,7 +16,7 @@ class RawOutputStream;
 
 class OutputStream {
 public:
-    OutputStream(const Util::MaybePointer<RawOutputStream> & = NULL, Endian = DEFAULT_ENDIAN);
+    OutputStream(const Util::MaybePointer<RawOutputStream> & = nullptr, Endian = DEFAULT_ENDIAN);
     OutputStream(const std::string &filename);
     OutputStream(int fd);
 
@@ -37,6 +37,19 @@ public:
     OutputStream & operator<<(double);
     // See InputStream.
     virtual OutputStream & operator<<(const std::string &);
+
+    void writeByte(int8_t);
+    void writeUByte(uint8_t);
+    void writeShort(int16_t);
+    void writeUShort(uint16_t);
+    void writeInt(int32_t);
+    void writeUInt(uint32_t);
+    void writeLong(int64_t);
+    void writeULong(uint64_t);
+    void writeFloat(float);
+    void writeDouble(double);
+    void writeString(const std::string &);
+
     virtual ~OutputStream();
 
     ssize_t write(const void *bytes, size_t size);

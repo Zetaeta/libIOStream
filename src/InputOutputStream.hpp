@@ -10,12 +10,18 @@ namespace IOStream {
 
 class InputOutputStream : public InputStream, public OutputStream {
 public:
-    InputOutputStream(const MaybePointer<RawInputStream> &in = NULL, const MaybePointer<RawOutputStream> &out = NULL)
+    using InputStream::seek;
+    using InputStream::close;
+
+    InputOutputStream(const Util::MaybePointer<RawInputStream> &in, const Util::MaybePointer<RawOutputStream> &out)
     :InputStream(in), OutputStream(out) {
     }
 
-    InputOutputStream(MaybePointer<RawInputOutputStream> raw)
-    :InputStream(raw), OutputStream(raw) {}
+    InputOutputStream(const Util::MaybePointer<RawInputOutputStream> &raw)
+    :InputStream(raw), OutputStream(Util::MaybePointer<RawInputOutputStream>(*raw)) {} // OutputStream can't hold the same MaybePointer or it will try delete it aswell,
+                                             // it has to be passed as a reference.
+
+    virtual ~InputOutputStream() {}
 };
 
 }

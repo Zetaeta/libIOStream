@@ -9,6 +9,8 @@ using Util::MaybePointer;
 
 namespace IOStream {
 
+using std::string;
+
 OutputStream::OutputStream(const MaybePointer<RawOutputStream> &raw, Endian endian)
 :raw(raw) {
     if (endian == NATIVE) {
@@ -104,6 +106,50 @@ OutputStream & OutputStream::operator<<(const std::string &data) {
     operator<<(length);
     raw->write(&data[0], length);
     return *this;
+}
+
+void OutputStream::writeByte(int8_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeUByte(uint8_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeShort(int16_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeUShort(uint16_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeInt(int32_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeUInt(uint32_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeLong(int64_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeULong(uint64_t data) {
+    operator<<(data);
+}
+
+void OutputStream::writeFloat(float data) {
+    operator<<(data);
+}
+
+void OutputStream::writeDouble(double data) {
+    operator<<(data);
+}
+
+void OutputStream::writeString(const string &data) {
+    operator<<(data);
 }
 
 ssize_t OutputStream::write(const void *buf, size_t length) {

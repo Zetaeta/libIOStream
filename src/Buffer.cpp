@@ -37,7 +37,7 @@ void Buffer::take(void *output, size_t len) {
 }
 
 size_t Buffer::request(void *output, size_t len) {
-    size_t taken = min(len, (endPos - startPos));
+    size_t taken = min(len, available());
     memcpy(output, begin(), taken);
     startPos += taken;
     return taken;

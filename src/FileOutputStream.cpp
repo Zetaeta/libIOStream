@@ -9,7 +9,7 @@
 namespace IOStream {
 
 FileOutputStream::FileOutputStream(const std::string &file) {
-    fd_ = open(file.c_str(), O_WRONLY);
+    fd_ = open(file.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 }
 
 FileOutputStream::FileOutputStream(int fd)

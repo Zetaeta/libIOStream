@@ -2,6 +2,8 @@
 #include <sstream>
 
 #include <Util/Endian.h>
+#include <Util/Throw.hpp>
+#include <Util/EOFException.hpp>
 
 #include "InputStream.hpp"
 #include "RawInputStream.hpp"
@@ -10,6 +12,7 @@
 using std::string;
 
 using Util::MaybePointer;
+using Util::EOFException;
 
 namespace IOStream {
 
@@ -30,17 +33,23 @@ InputStream::InputStream(int fd)
 :InputStream(new FileInputStream(fd)) {}
 
 InputStream & InputStream::operator>>(int8_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read int8_t");
+    }
     return *this;
 }
 
 InputStream & InputStream::operator>>(uint8_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read uint8_t");
+    }
     return *this;
 }
 
 InputStream & InputStream::operator>>(int16_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read int16_t");
+    }
     if (swap) {
         swapEndian(data);
     }
@@ -48,14 +57,18 @@ InputStream & InputStream::operator>>(int16_t &data) {
 }
 
 InputStream & InputStream::operator>>(uint16_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read uint16_t");
+    }
     if (swap) {
         swapEndian(data);
     }
     return *this;
 } 
 InputStream & InputStream::operator>>(int32_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read int32_t");
+    }
     if (swap) {
         swapEndian(data);
     }
@@ -63,7 +76,9 @@ InputStream & InputStream::operator>>(int32_t &data) {
 }
 
 InputStream & InputStream::operator>>(uint32_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read uint32_t");
+    }
     if (swap) {
         swapEndian(data);
     }
@@ -71,7 +86,9 @@ InputStream & InputStream::operator>>(uint32_t &data) {
 }
 
 InputStream & InputStream::operator>>(int64_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read int64_t");
+    }
     if (swap) {
         swapEndian(data);
     }
@@ -79,7 +96,9 @@ InputStream & InputStream::operator>>(int64_t &data) {
 }
 
 InputStream & InputStream::operator>>(uint64_t &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read uint64_t");
+    }
     if (swap) {
         swapEndian(data);
     }
@@ -87,7 +106,9 @@ InputStream & InputStream::operator>>(uint64_t &data) {
 }
 
 InputStream & InputStream::operator>>(float &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read float");
+    }
     if (swap) {
         swapEndian(data);
     }
@@ -95,7 +116,9 @@ InputStream & InputStream::operator>>(float &data) {
 }
 
 InputStream & InputStream::operator>>(double &data) {
-    raw->read(&data, sizeof(data));
+    if (size_t(raw->read(&data, sizeof(data))) < sizeof(data)) {
+        throwSpecific(EOFException, "Failed to read double");
+    }
     if (swap) {
         swapEndian(data);
     }

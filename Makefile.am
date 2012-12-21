@@ -4,6 +4,9 @@ ACLOCAL_AMFLAGS = -I m4
 
 lib_LTLIBRARIES = libIOStream.la
 
+CXXFLAGS=
+AM_CXXFLAGS=
+
 libIOStream_la_CXXFLAGS = -g -fPIC -Wall -std=c++11 -O0 -Werror
 
 libIOStream_la_LDFLAGS = -lZUtil -lcrypto
@@ -18,7 +21,7 @@ libIOStream_la_SOURCES = src/Buffer.cpp  \
     src/DeflateInputStream.cpp src/DeflateOutputStream.cpp \
     src/ArrayInputStream.cpp src/ArrayOutputStream.cpp \
     src/EncryptedInputStream.cpp src/EncryptedOutputStream.cpp \
-    src/SocketInputStream.cpp src/SocketOutputStream.cpp
+    src/SocketInputStream.cpp src/SocketOutputStream.cpp src/FileIOStream.cpp
 
 libIOStream_la_include_HEADERS = src/Buffer.hpp src/Endian.hpp \
     src/InputStream.hpp src/OutputStream.hpp \
@@ -27,7 +30,8 @@ libIOStream_la_include_HEADERS = src/Buffer.hpp src/Endian.hpp \
     src/GZipInputStream.hpp src/GZipOutputStream.hpp \
     src/DeflateInputStream.hpp src/DeflateOutputStream.hpp \
     src/ArrayInputStream.hpp src/ArrayOutputStream.hpp \
-    src/InputOutputStream.hpp src/RawInputOutputStream.hpp \
+    src/InputOutputStream.hpp src/RawInputOutputStream.hpp src/RawMergeStream.hpp \
     src/EncryptedInputStream.hpp src/EncryptedOutputStream.hpp \
-    src/SocketInputStream.hpp src/SocketOutputStream.hpp src/SocketStream.hpp
+    src/SocketInputStream.hpp src/SocketOutputStream.hpp src/SocketStream.hpp \
+    src/FileIOStream.hpp
 
